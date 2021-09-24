@@ -1,48 +1,37 @@
 $biosVersion = (Get-ItemPropertyValue -Path "HKLM:\HARDWARE\DESCRIPTION\System\BIOS\" -Name "BiosVersion")
+$deviceList = $null
 $model = (Get-ItemPropertyValue -Path "HKLM:\HARDWARE\DESCRIPTION\System\BIOS\" -Name "SystemProductName")
 
 function Get-UpdateStatus {
-     if (($model -eq "Precision 5550") -and ($biosVersion -eq "1.9.1")) {
-        $isUpToDate = $true
-    } elseif (($model -eq "Latitude 5580") -and ($biosVersion -eq "1.20.2")) {
-        $isUpToDate = $true
-    } elseif (($model -eq "Latitude 5590") -and ($biosVersion -eq "1.17.0")) {
-        $isUpToDate = $true
-    } elseif (($model -eq "Latitude 5591") -and ($biosVersion -eq "1.15.0")) {
-        $isUpToDate = $true
-    } elseif (($model -eq "Latitude 5400") -and ($biosVersion -eq "1.12.0")) {
-        $isUpToDate = $true
-    } elseif (($model -eq "Latitude 5410") -and ($biosVersion -eq "1.7.0")) {
-        $isUpToDate = $true
-    } elseif (($model -eq "Latitude 7400") -and ($biosVersion -eq "1.14.0")) {
-        $isUpToDate = $true
-    } elseif (($model -eq "OptiPlex 3040") -and ($biosVersion -eq "1.16.1")) {
-        $isUpToDate = $true
-    } elseif (($model -eq "OptiPlex 3060") -and ($biosVersion -eq "1.14.0")) {
-        $isUpToDate = $true
-    } elseif (($model -eq "OptiPlex 3080") -and ($biosVersion -eq "2.2.1")) {
-        $isUpToDate = $true
-    } elseif (($model -eq "XPS 13 9350") -and ($biosVersion -eq "1.13.0")) {
-        $isUpToDate = $true
-    } elseif (($model -eq "XPS 13 9380") -and ($biosVersion -eq "1.15.0")) {
-        $isUpToDate = $true
-    } elseif (($model -eq "XPS 15 9560") -and ($biosVersion -eq "1.15.0")) {
-        $isUpToDate = $true
-    } else {
-        $isUpToDate = $false
+
+    $deviceList = [ordered]@{
+        "Latitude 5580" = "1.20.2"
+        "Latitude 5590" = "1.17.0"
+        "Latitude 5591" = "1.15.0"
+        "Latitude 5400" = "1.12.0"
+        "Latitude 5410" = "1.7.0"
+        "Latitude 7400" = "1.14.0"
+        "OptiPlex 3040" = "1.16.1"
+        "OptiPlex 3060" = "1.14.0"
+        "OptiPlex 3080" = "2.2.1"
+        "Precision 5550" = "1.9.1"
+        "XPS 13 9350" = "1.13.0"
+        "XPS 13 9380" = "1.15.0"
+        "XPS 15 9560" = "1.15.0"
     }
-    return $isUptoDate
+    
+    try {
+        $deviceList.GetEnumerator() | ForEach-Object {
+            if (($_.Name -eq $model) -and ($_.Value -eq $biosVersion)) {
+                    Write-Host "This BIOS is up to date. [Exit Code: 1]"
+                    exit 1
+            }
+    }
+        Write-Host "The BIOS needs to be updated. [Exit Code: 0]"
+        exit 0
+    } catch {
+        Write-Host "Someone set us up the bomb."
+    }
 }
 
-try {
-    if (Get-UpdateStatus($isUpToDate) -eq $true) {
-        Write-Host "The BIOS is up to date."
-        exit 1
-    } elseif (Get-UpdateStatus($isUpToDate) -eq $false) {
-        Write-Host "The BIOS needs to be updated."
-        exit 0
-    } 
-} catch {
-    Write-Host "Something went wrong."
-    exit 1
-}
+Get-UpdateStatus
