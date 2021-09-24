@@ -19,19 +19,29 @@ function Get-UpdateStatus {
         "XPS 13 9380" = "1.15.0"
         "XPS 15 9560" = "1.15.0"
     }
-    
+
     try {
+
         $deviceList.GetEnumerator() | ForEach-Object {
+
             if (($_.Name -eq $model) -and ($_.Value -eq $biosVersion)) {
-                    Write-Host "This BIOS is up to date. [Exit Code: 1]"
-                    exit 1
+
+                Write-Host "This BIOS is up to date. [Exit Code: 1]"
+                exit 1
+
             }
-    }
+
+        }
+
         Write-Host "The BIOS needs to be updated. [Exit Code: 0]"
         exit 0
+
     } catch {
+
         Write-Host "Someone set us up the bomb."
+
     }
+
 }
 
 Get-UpdateStatus
